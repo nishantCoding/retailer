@@ -5,7 +5,7 @@ sign_in = (req, resp) => {
 
     const { username, password } = req.body;
     if (username && password) {
-        //check against db for existence
+        //check against db for existence, use bcrypt compare here.
         if (username === mockedUsername && password === mockedPassword) {
 
             let token = jwt.sign({ username: username },
@@ -36,16 +36,59 @@ sign_in = (req, resp) => {
     }
 }
 
-sign_up = (req,resp) =>{
+sign_up = async (req, resp, next) => {
     const { username, password } = req.body;
-    if(!username || !password){
-        resp.json({success : false, message : 'Please pass username and password.'})
+    if (!username || !password) {
+        resp.json({ success: false, message: 'Please pass username and password.' })
     }
+    //create a record in db..
+    try {
+        await createUser([name, email, password]);
+        let user = findUserByEmail(email);
+
+        const accessToken = jwt.sign({ id: user.id },
+            secret,
+            {
+                expiresIn: '24h'
+            });
+        res.status(200).send({
+            "user": user, "access_token": accessToken
+        });
+    } catch (e) {
+        resp.statusCode = 500;
+        next(e)
+    }
+
 }
 
+verify_token = (req, res, next) => {
+    let token = req.headers['x-access-token'] || req.headers['authorization'];
+    if (token.startsWith('Bearer ')) {
+        token = token.slice(7, token.length);
+    }
 
+    if (token) {
+        jwt.verify(token, secret, (err, decoded) => {
+            if (err) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Token is not valid'
+                });
+            } else {
+                req.decoded = decoded;
+                next();
+            }
+        });
+    } else {
+        return res.status(400).json({
+            success: false,
+            message: 'Auth token is not supplied'
+        });
+    }
+};
 
-
-
-
-
+module.exports = {
+    sign_in,
+    sign_up,
+    verify_token
+}
