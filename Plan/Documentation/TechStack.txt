@@ -3,7 +3,7 @@ TechStack
 ============================
 
 
-Frontend : React Native , D3js 
-Backend : Node, Express
-Database : MongoDB
-StorageSupport : AWS
+Frontend : React Native , D3js,SocketIO 
+Backend : Node, Express, SocketIO
+Database : MongoDB , Redis
+??**StorageSupport : AWS

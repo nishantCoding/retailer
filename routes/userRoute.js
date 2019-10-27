@@ -1,14 +1,11 @@
 const express = require('express');
-var cors = require('cors');
+const { get_all_users } = require('../controllers/userController');
 
 
 
 
 const userRoute = express.Router();
 
-userRoute.get('/',(req,resp)=>{
-
-    resp.json([{id:1, role:'owner'},{id:2, role : 'admin'}]);
-})
+userRoute.get('/', get_all_users)
 
 module.exports = userRoute;
