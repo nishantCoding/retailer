@@ -1,0 +1,26 @@
+Database :  MongoDb
+
+1. Users (Admin, Owner, waiter, chef, customer) : 
+-Master table.
+{
+    id : '123',
+    role  : 'admin/Owner/chef',
+    name : 'abc',
+    userName : 'abc@sdfj.com',
+    passWord : 'xyzabc'
+}
+
+2. Menu
+-Master table
+{
+    id : '123',
+    name : 'chole bahture',
+    cost : '50',
+    category : 'veg - lunch',
+    description : 'please ask chef',
+    availability : true
+}
+
+3. Transactions
+
+
