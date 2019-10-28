@@ -2,6 +2,7 @@ const app = require('express')();
 const router = require('./routes');
 const bodyParser = require('body-parser');
 var cors = require('cors');
+var db = require('./db');
 
 app.use(bodyParser.urlencoded({
     extended: true
@@ -25,6 +26,7 @@ app.use(router);
 
 
 app.listen(5000, ()=>{
+    db.connectDB()
     console.log('App lisening on port 5000');
 });
 
