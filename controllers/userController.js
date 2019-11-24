@@ -1,21 +1,23 @@
 const bcrypt = require('bcrypt');
 
+
 get_all_users = (req, resp) => {
-    //dummy data
-    resp.json([{ id: 1, role: 'owner' }, { id: 2, role: 'admin' }]);
+    //get all users of the hotel, provide hotel id
+    //only for owner/sa
+    
 }
 
 get_user_by_id = (req, resp) => {
-    //dummy data
-    resp.json([{ id: 1, role: 'owner' }, { id: 2, role: 'admin' }]);
+    //get an user of the hotel, provide username
+    //only for owner/sa and the user itself
 }
 
-create_user = (req, resp) => {
-    const { username, name, email, password } = req.body;
-    bcrypt.hash(password, 5, async function (err, hash) {
-        //store in db.. await for operation, send resp from here..
-    });
-}
+// create_user = (req, resp) => {
+//     const { username, name, email, password } = req.body;
+//     bcrypt.hash(password, 5, async function (err, hash) {
+//         //store in db.. await for operation, send resp from here..
+//     });
+// }
 
 module.exports = {
     create_user,

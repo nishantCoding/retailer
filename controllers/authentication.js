@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { secret } = require('config');
+const responseProvider  = require('../common/responseProvider');
 
 sign_in = (req, resp) => {
 
@@ -8,57 +9,54 @@ sign_in = (req, resp) => {
         //check against db for existence, use bcrypt compare here.
         if (username === mockedUsername && password === mockedPassword) {
 
-            let token = jwt.sign({ username: username },
+            let token = jwt.sign({ username: username, roles: roles },
                 secret,
                 {
                     expiresIn: '24h' // expires in 24 hours
                 }
             );
+            return responseProvider.responseProvider(resp, 200, true, 'Authentication Successful.', null, { token: token });
             // return the JWT token for the future API calls
-            resp.status(201).json({
-                success: true,
-                message: 'Authentication successful!',
-                token: token
-            });
         }
         else {
-            resp.send(403).json({
-                success: false,
-                message: 'Incorrect username or password'
-            });
+            return responseProvider.responseProvider(resp, 401, false, 'Authentication Failed.Incorrect Username or Password');
         }
     }
     else {
-        resp.send(400).json({
-            success: false,
-            message: 'Authentication failed! Please check the request'
-        });
+        return responseProvider.responseProvider(resp, 400, false, 'Authentication failed.Invalid request.');
     }
 }
 
 sign_up = async (req, resp, next) => {
     const { username, password } = req.body;
     if (!username || !password) {
-        resp.json({ success: false, message: 'Please pass username and password.' })
+        return responseProvider.responseProvider(resp, 400, false, 'Authentication failed. Invalid Username and Password.');
     }
     //create a record in db..
     try {
         await createUser([name, email, password]);
         let user = findUserByEmail(email);
 
-        const accessToken = jwt.sign({ id: user.id },
+        const accessToken = jwt.sign({ id: user.id , roles: user.roles },
             secret,
             {
                 expiresIn: '24h'
             });
-        res.status(200).send({
-            "user": user, "access_token": accessToken
-        });
+
+      return postResponseProvider(res,201,true,'New User created successfully.',user.id)
     } catch (e) {
         resp.statusCode = 500;
         next(e)
     }
+}
 
+user_exists =async(req,resp,next)=>{
+    const { username, password } = req.body;
+    //check in db, if username already exists
+    if(user.username){
+        return responseProvider.responseProvider(resp,400,false,'Username already exists.');
+    }
+    next();
 }
 
 verify_token = (req, res, next) => {
@@ -70,20 +68,14 @@ verify_token = (req, res, next) => {
     if (token) {
         jwt.verify(token, secret, (err, decoded) => {
             if (err) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Token is not valid'
-                });
+                return responseProvider.responseProvider(resp, 400, false, 'Authentication failed. Invalid token.');
             } else {
                 req.decoded = decoded;
                 next();
             }
         });
     } else {
-        return res.status(400).json({
-            success: false,
-            message: 'Auth token is not supplied'
-        });
+        return responseProvider.responseProvider(resp, 400, false, 'Authentication failed. Token not supplied.');
     }
 };
 
