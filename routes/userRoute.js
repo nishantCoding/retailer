@@ -7,7 +7,7 @@ const { get_all_users,
 
 const userRoute = express.Router();
 
-userRoute.get('/', get_all_users);
+userRoute.get('/:restaurantId', get_all_users);
 userRoute.get('/:id', get_user_by_id);
 userRoute.post('/', create_user);
 

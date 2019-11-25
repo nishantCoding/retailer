@@ -1,7 +1,11 @@
 
 module.exports = {
 
-    responseProvider(res, statusCode, success, message, req = null, data = null) {
+    responseProvider(res, statusCode, success, message, req = null, respData = null) {
+        let data = null;
+        if (respData) {
+            data: { respData }
+        }
         return res.status(statusCode).json({
             success,
             message,
