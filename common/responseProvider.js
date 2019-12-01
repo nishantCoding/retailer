@@ -2,10 +2,11 @@
 module.exports = {
 
     responseProvider(res, statusCode, success, message, req = null, respData = null) {
+        
         let data = null;
         if (respData) {
-            data: { respData }
-        }
+            data = respData 
+        }        
         return res.status(statusCode).json({
             success,
             message,
@@ -13,25 +14,24 @@ module.exports = {
         });
     },
 
-    errorProvider(res, statusCode, data, err) {
-        const { message, name, fields } = err;
-        return res.json({
+    errorProvider(res, statusCode,success=false,message,req=null, data=null, err) {
+        //const { message, name, fields } = err;
+        return res.status(statusCode).json({
             success: false,
             message,
-            data: {
-                name,
-                fields,
-            },
+            data:data
         });
     },
 
-    postResponseProvider(res, statusCode, success, message, id, req = null, data = null) {
+    postResponseProvider(res, statusCode, success, message, req = null, respData = null) {
+        let data = null;
+        if (respData) {
+            data = respData 
+        }     
         return res.status(statusCode).json({
             success,
             message,
-            data,
-            id,
-            href,
+            data,                       
         });
     },
 }

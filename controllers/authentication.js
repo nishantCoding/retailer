@@ -1,25 +1,45 @@
 const jwt = require('jsonwebtoken');
-const { secret } = require('config');
+//const { secret } = require('config');
+const bcrypt = require('bcryptjs');
 const responseProvider  = require('../common/responseProvider');
+const User = require('../models/user')
 
-sign_in = (req, resp) => {
+sign_in = async (req, resp) => {
 
     const { username, password } = req.body;
     if (username && password) {
         //check against db for existence, use bcrypt compare here.
-        if (username === mockedUsername && password === mockedPassword) {
+        let user = await User.findOne({username:username});
 
-            let token = jwt.sign({ username: username, roles: roles },
-                secret,
+        if (user) {
+
+            //check password
+            const passwordMatched = bcrypt.compareSync(password, user.password);
+            if (!passwordMatched) {
+                return responseProvider.responseProvider(resp, 401, false, 'Authentication Failed.Incorrect Password.');
+            }
+
+            //password matched, create token for future requests
+            let token = jwt.sign({ username: user.username, roles: user.roles },
+                'Ragasiya',
                 {
                     expiresIn: '24h' // expires in 24 hours
                 }
             );
-            return responseProvider.responseProvider(resp, 200, true, 'Authentication Successful.', null, { token: token });
+            user = {
+                id: user._id,
+                username: user.username,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                active: user.active,
+                roles: user.roles
+            }
+            return responseProvider.responseProvider(resp, 200, true, 'Authentication Successful.', null, { ...user , token: token });
             // return the JWT token for the future API calls
-        }
+        } 
         else {
-            return responseProvider.responseProvider(resp, 401, false, 'Authentication Failed.Incorrect Username or Password');
+            return responseProvider.responseProvider(resp, 401, false, `Authentication Failed.Username doesn't exist.`);
         }
     }
     else {
@@ -59,18 +79,21 @@ user_exists =async(req,resp,next)=>{
     next();
 }
 
-verify_token = (req, res, next) => {
+verify_token = (req, resp, next) => {  
+   
     let token = req.headers['x-access-token'] || req.headers['authorization'];
-    if (token.startsWith('Bearer ')) {
+    if (token && token.startsWith('Bearer ')) {
         token = token.slice(7, token.length);
     }
-
+    
     if (token) {
-        jwt.verify(token, secret, (err, decoded) => {
+        console.log('token',token)
+        jwt.verify(token, 'Ragasiya', (err, decoded) => {
             if (err) {
                 return responseProvider.responseProvider(resp, 400, false, 'Authentication failed. Invalid token.');
             } else {
                 req.decoded = decoded;
+                console.log('decoded',decoded);
                 next();
             }
         });

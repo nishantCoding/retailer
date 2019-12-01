@@ -9,10 +9,15 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use(bodyParser.json());
+
+app.use('/qw',(req,resp)=>{
+ 
+  resp.json({name:'Nishant'})});
 app.use(router);
 
 app.use(function (err, req, resp, next) {
-  return errorProvider(res, 500, {}, err)
+  console.log('err middleware')
+  return errorProvider(resp, 500,undefined,"Something went bad on server.")
 });
 
 app.listen(5000, () => {
